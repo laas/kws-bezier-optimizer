@@ -16,7 +16,7 @@
 // along with kws-bezier-optimizer.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * \brief .
+ * \brief Inclusion of all classes.
  */
 
 #ifndef KWS_BEZIER_OPTIMIZER_BEZIER_OPTIMZIER_HH_
