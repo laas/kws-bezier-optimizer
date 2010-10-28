@@ -20,8 +20,4 @@ libkws_bezier_optimizer_la_LIBADD = 		\
 	$(HPP_UTIL_LIBS) 				\
 	$(HPPCORE_LIBS)	
 
-libhpp_walkfootplanner_la_LIBADD = 		\
-	$(HPPCORE_LIBS) 			\
-	$(HPP_UTIL_LIBS)
-
 #libkws_bezier_optimizer_la_CPPFLAGS = $( AM_CPPFLAGS)

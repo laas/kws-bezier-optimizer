@@ -65,11 +65,6 @@ m4_include([deps.ac])
 ## Pkg-config.  ##
 ## ------------ ##
 
-AC_SUBST([PKGCONFIG_DESCRIPTION], [kws-bezier-optimizer])
-AC_SUBST([PKGCONFIG_CONFLICTS], [])
-AC_SUBST([PKGCONFIG_LIBS], [-lkws-bezier-optimizer])
-AC_SUBST([PKGCONFIG_CFLAGS], [])
-
 JRL_PKGCONFIGCHECK_ADDDEP([HPPCORE], [hppCore >= 1.10])
 JRL_PKGCONFIGCHECK_ADDDEP([HPP_UTIL], [hpp-util])
 JRL_PKGCONFIGCHECK_ADDDEP([KWSPLUS], [kwsPlus >= 1.8])
@@ -80,13 +75,18 @@ AC_SUBST(KINEO_PREFIX, [${KINEOPATHPLANNER_PREFIX}])
 AC_SUBST([KINEO_ADDON_BUILDER],
 	[${KINEOCONTROLLER_PREFIX}/bin/KineoAddonBuilder])
 
+AC_SUBST([PKGCONFIG_DESCRIPTION], [kws-bezier-optimizer])
+AC_SUBST([PKGCONFIG_REQUIRES], [`echo "$PKGCONFIG_REQUIRES" | sed 's/, $//'`])
+AC_SUBST([PKGCONFIG_CONFLICTS], [])
+AC_SUBST([PKGCONFIG_LIBS], [-lkws-bezier-optimizer])
+AC_SUBST([PKGCONFIG_CFLAGS], [])
+
 ## ------------ ##
 ## Test-suite.  ##
 ## ------------ ##
 
 AC_CONFIG_TESTDIR([tests])
 AM_MISSING_PROG([AUTOM4TE], [autom4te])
-
 
 ## -------------- ##
 ## Write output.  ##
