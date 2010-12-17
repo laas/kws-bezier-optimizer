@@ -9,7 +9,8 @@ AM_CXXFLAGS += $(HPPCORE_CFLAGS)
 # Add dependencies CPPFLAGS.
 AM_CPPFLAGS += 					\
 	$(HPP_UTIL_CFLAGS)			\
-	$(HPPCORE_CFLAGS)
+	$(HPPCORE_CFLAGS)			\
+	$(KWS_HASH_OPTIMIZER_CFLAGS)
 
 lib_LTLIBRARIES = libkws-bezier-optimizer.la
 
