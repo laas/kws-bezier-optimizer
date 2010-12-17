@@ -18,6 +18,7 @@ libkws_bezier_optimizer_la_SOURCES = 			\
 
 libkws_bezier_optimizer_la_LIBADD = 		\
 	$(HPP_UTIL_LIBS) 				\
-	$(HPPCORE_LIBS)	
+	$(HPPCORE_LIBS)					\
+	$(KWS_HASH_OPTIMIZER_LIBS)
 
 #libkws_bezier_optimizer_la_CPPFLAGS = $( AM_CPPFLAGS)
