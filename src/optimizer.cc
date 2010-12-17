@@ -37,6 +37,8 @@
 #include <kwsPlus/directPath/bezierSteeringMethod.h>
 #include <kwsPlus/directPath/bezierDirectPath.h>
 
+#include <kws/hash-optimizer/optimizer.hh>
+
 #include "kws/bezier-optimizer/optimizer.hh"
 
 namespace kws
@@ -116,10 +118,15 @@ namespace kws
       CkwsConfig ithNextCfg (device ());
       CkwsConfig ithSecondNextCfg (device ());
 
+      CkwsPathOptimizerShPtr hashOptim
+	= kws::hashoptimizer::Optimizer::create (1, 6*stepSize (), 3);
+      hashOptim->distance (distance ());
+      CkwsPathShPtr hashPath = CkwsPath::create (device ());
+      
       unsigned int i = 0;
       while (i < (configsNumber - 2) && canContinue)
 	{
-	  // std::cout << i << std::endl;
+	  std::cout << i << std::endl;
 	  copyPath->getConfiguration (i, ithCfg);
 	  copyPath->getConfiguration (i + 1, ithNextCfg);
 	  copyPath->getConfiguration (i + 2, ithSecondNextCfg);
@@ -136,16 +143,17 @@ namespace kws
 						  cfgValidator,
 						  interLeftCfg))
 		{
-		  // std::cout << "intermediate left config invalid" << std::endl;
-		  if (KD_ERROR == outPath->appendDirectPath (copyPath->directPath (i)))
-		    std::cout << "could not append DP " << i << std::endl;
-		  // else std::cout << "appended DP " << std::endl;
+		  hppDout (warning, "invalid interLeftCfg");
+		  if (KD_ERROR
+		      == hashPath->appendDirectPath (copyPath->directPath (i)))
+		    hppDout (error, "could not append direct path " << i);
 		  lastCfg = ithNextCfg;
 		  if (endOfPath)
 		    {
-		      if (KD_ERROR == outPath
+		      if (KD_ERROR == hashPath
 			  ->appendDirectPath (copyPath->directPath (i + 1)))
-			std::cout << "could not append DP " << i + 1 << std::endl;
+			hppDout (error, "could not append direct path "
+				 << i + 1);
 		      // else std::cout << "appended DP " << std::endl;
 		      lastCfg = ithSecondNextCfg;
 		    }
@@ -165,17 +173,17 @@ namespace kws
 	      dpValidator->validate (*linearLeftDP);
 	      if (!linearLeftDP->isValid ())
 		{
-		  // std::cout << "linear left DP not valid" << std::endl;
-		  if (KD_ERROR == outPath->appendDirectPath (copyPath->directPath (i)))
-		    std::cout << "could not append DP " << i << std::endl;
-		  // else std::cout << "appended DP " << std::endl;
+		  hppDout (warning, "invalid linearLeftDP");
+		  if (KD_ERROR
+		      == hashPath->appendDirectPath (copyPath->directPath (i)))
+		    hppDout (error, "could not append direct path " << i);
 		  lastCfg = ithNextCfg;
 		  if (endOfPath)
 		    {
-		      if (KD_ERROR == outPath
+		      if (KD_ERROR == hashPath
 			  ->appendDirectPath (copyPath->directPath (i + 1)))
-			std::cout << "could not append DP " << i + 1 << std::endl;
-		      // else std::cout << "appended DP " << std::endl;
+			hppDout (error, "could not append direct path "
+				 << i + 1);
 		      lastCfg = ithSecondNextCfg;
 		    }
 		  newPathSection = true;
@@ -199,22 +207,17 @@ namespace kws
 						      cfgValidator,
 						      interRightCfg))
 		    {
-		      // std::cout << "intermediate right cfg invalid" << std::endl;
-		      if (KD_ERROR 
-			  == outPath->appendDirectPath (copyPath->directPath (i)))
-			std::cout << "could not append DP " << i << std::endl;
-		      // else std::cout << "appended DP " << std::endl;
-		      // appendModifiedDP (copyPath, dpValidator, cfgValidator, i, 
-		      // 		      outPath);
+		      hppDout (warning, "invalid interRightCfg");
+		      if (KD_ERROR == hashPath
+			  ->appendDirectPath (copyPath->directPath (i)))
+			hppDout (error, "could not append direct path " << i);
 		      lastCfg = ithNextCfg;
 		      if (endOfPath)
 			{
-			  if (KD_ERROR == outPath
+			  if (KD_ERROR == hashPath
 			      ->appendDirectPath (copyPath->directPath (i + 1)))
-			    std::cout << "could not append DP " << i + 1 << std::endl;
-			  // else std::cout << "appended DP " << std::endl;
-			  // appendModifiedDP (copyPath, dpValidator, cfgValidator, 
-			  // 		  i + 1, outPath);
+			    hppDout (error, "could not append direct path "
+				     << i + 1);
 			  lastCfg = ithSecondNextCfg;
 			}
 		      newPathSection = true;
@@ -231,21 +234,19 @@ namespace kws
 						      interRightCfg))
 		    {
 		      // std::cout << "intermediate right cfg invalid" << std::endl;
+		      hppDout (warning, "invalid interRightCfg");
 		      interLeftCfg = lastCfg;
 		      CkwsDirectPathShPtr linearLeftDP
 			= linearSM->makeDirectPath (interLeftCfg, ithNextCfg);
-		      if (KD_ERROR == outPath->appendDirectPath (linearLeftDP))
-			std::cout << "could not append linear left DP" << std::endl;
-		      // else std::cout << "appended linear left DP " << std::endl;
+		      if (KD_ERROR == hashPath->appendDirectPath (linearLeftDP))
+			hppDout (error, "could not append linera left DP" << i);
 		      lastCfg = ithNextCfg;
 		      if (endOfPath)
 			{
-			  if (KD_ERROR == outPath
+			  if (KD_ERROR == hashPath
 			      ->appendDirectPath (copyPath->directPath (i + 1)))
-			    std::cout << "could not append DP " << i + 1 << std::endl;
-			  // else std::cout << "appended DP " << std::endl;
-			  // appendModifiedDP (copyPath, dpValidator, cfgValidator,
-			  // 		  i + 1, outPath);
+			    hppDout (error, "could not append direct path "
+				     << i + 1);
 			  lastCfg = ithSecondNextCfg;
 			}
 		      newPathSection = true;
@@ -267,33 +268,31 @@ namespace kws
 					   dpValidator, cfgValidator, 0);
 	      if (!bezierPath)
 		{
+		  hppDout (warning, "invalid bezierPath");
 		  // std::cout << "no valid bezier path" << std::endl;
 		  if (newPathSection)
 		    {
-		      if (KD_ERROR == outPath->appendDirectPath (copyPath->directPath (i)))
-			std::cout << "could not append DP " << i << std::endl;
-		      // else std::cout << "appended DP " << std::endl;
-		      // appendModifiedDP (copyPath, dpValidator, cfgValidator, i, 
-		      // 		      outPath);
+		      if (KD_ERROR == hashPath
+			  ->appendDirectPath (copyPath->directPath (i)))
+			hppDout (error, "could not append direct path " << i);
 		      lastCfg = ithNextCfg;
 		    }
 		  else
 		    {
 		      CkwsDirectPathShPtr linearLeftDP
 			= linearSM->makeDirectPath (interLeftCfg, ithNextCfg);
-		      if (KD_ERROR == outPath->appendDirectPath (linearLeftDP))
-			std::cout << "could not append linear left DP" << std::endl;
-		      // else std::cout << "appended linear left DP" << std::endl;
+		      if (KD_ERROR
+			  == hashPath->appendDirectPath (linearLeftDP))
+			hppDout (error, "could not append linear left DP "
+				 << i);
 		      lastCfg = ithNextCfg;
 		    }
 		  if (endOfPath)
 		    {
-		      if (KD_ERROR == 
-			  outPath->appendDirectPath (copyPath->directPath (i + 1)))
-			std::cout << "could not append DP " << i + 1 << std::endl;
-		      // else std::cout << "appended DP " << std::endl;
-		      // appendModifiedDP (copyPath, dpValidator, cfgValidator, 
-		      // 		      i +1 , outPath);
+		      if (KD_ERROR == hashPath
+			  ->appendDirectPath (copyPath->directPath (i + 1)))
+			hppDout (error, "could not append direct path "
+				 << i + 1);
 		      lastCfg = ithSecondNextCfg;
 		    }
 		  newPathSection = true;
@@ -311,34 +310,30 @@ namespace kws
 	      dpValidator->validate (*linearRightDP);
 	      if (!linearRightDP->isValid ())
 		{
+		  hppDout (warning, "invalid linearRightDP");
 		  // std::cout << "linear right DP not valid"<< std::endl;
 		  if (newPathSection)
 		    {
-		      if (KD_ERROR == outPath->appendDirectPath (copyPath->directPath (i)))
-			std::cout << "could not append DP" << i << std::endl;
-		      // else std::cout << "appended DP" << std::endl;
-		      // appendModifiedDP (copyPath, dpValidator, cfgValidator, i, 
-		      // 		      outPath);
+		      if (KD_ERROR == hashPath
+			  ->appendDirectPath (copyPath->directPath (i)))
+			hppDout (error, "could not append direct path " << i);
 		    }
 		  else
 		    {
 		      linearRightDP 
 			= linearSM->makeDirectPath (interLeftCfg, ithNextCfg);
-		      if (KD_ERROR == outPath->appendDirectPath (linearRightDP))
-			std::cout << "could not append previous linear right DP" 
-				  << std::endl;
-		      // else std::cout << "appended previous linear right DP" 
-		      // 		   << std::endl;
+		      if (KD_ERROR
+			  == hashPath->appendDirectPath (linearRightDP))
+			hppDout (error, "could not append linear right DP "
+				 << i);
 		    }
 		  lastCfg = ithNextCfg;
 		  if (endOfPath)
 		    {
-		      if (KD_ERROR == outPath
+		      if (KD_ERROR == hashPath
 			  ->appendDirectPath (copyPath->directPath (i + 1)))
-			std::cout << "could not append DP " << i + 1 << std::endl;
-		      // else std::cout << "appended DP " << std::endl;
-		      // appendModifiedDP (copyPath, dpValidator, cfgValidator, i + 1 , 
-		      // 		      outPath);
+			hppDout (error, "could not append direct path "
+				 << i + 1);
 		      lastCfg = ithSecondNextCfg;
 		    }
 		  newPathSection = true;
@@ -351,6 +346,17 @@ namespace kws
 	  // append paths to ouput
 	  if (canContinue)
 	    {
+	      hppDout (notice, "input hashPath direct paths "
+		       << hashPath->countDirectPaths ());
+	      if (hashPath->countDirectPaths () > 0)
+		{
+		  if (KD_ERROR == hashOptim->optimizePath (hashPath))
+		    hppDout (notice, "hash optimization incomplete");
+		  if (KD_ERROR == outPath->appendPath (hashPath))
+		    hppDout (error, "could not append optimized hash path");
+		  hashPath->clear ();
+		}
+
 	      if (newPathSection)
 		{
 		  CkwsDirectPathShPtr linearLeftDP
@@ -381,12 +387,25 @@ namespace kws
 		}
 	      i++;
 	    }
+	  else if (endOfPath)
+	    {
+	      hppDout (notice, "input hashPath direct paths "
+		       << hashPath->countDirectPaths ());
+      	      if (KD_ERROR == hashOptim->optimizePath (hashPath))
+	      	hppDout (notice, "hash optimization incomplete");
+	      hppDout (notice, "output hashPath direct paths "
+		       << hashPath->countDirectPaths ());
+	      if (KD_ERROR == outPath->appendPath (hashPath))
+		hppDout (error, "could not append optimized hash path");
+	      hashPath->clear ();
+	    }
+	  
 	  canContinue = true;
 	}
       // o_path = CkwsPath::create (device ());
       // *o_path = *outPath;
       *io_path = *outPath;
-
+      
       return KD_OK;
     }
 
