@@ -97,6 +97,13 @@ namespace kws
       CkwsPathShPtr bezierPath = CkwsPath::create (device ());
 
       unsigned int configsNumber = copyPath->countConfigurations ();
+      CkwsPathShPtr outPath = CkwsPath::create (device ());
+      if (configsNumber == 2)
+	{
+	  outPath = io_path;
+	  return KD_OK;
+	}
+      
       bool holonomicStart = true; //DP starts with holonomic constraints
       bool holonomicEnd = false; //DP ends with holonomic constraints
       bool newPathSection = true; //new section starts when failed to append bezier
@@ -108,7 +115,6 @@ namespace kws
       CkwsConfig ithCfg (device ());
       CkwsConfig ithNextCfg (device ());
       CkwsConfig ithSecondNextCfg (device ());
-      CkwsPathShPtr outPath = CkwsPath::create (device ());
 
       unsigned int i = 0;
       while (i < (configsNumber - 2) && canContinue)
