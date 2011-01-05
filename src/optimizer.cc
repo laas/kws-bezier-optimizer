@@ -78,8 +78,17 @@ namespace kws
 
     ktStatus Optimizer::doOptimizePath (const CkwsPathShPtr& io_path)
     {
+      CkwsAdaptiveShortcutOptimizerShPtr basicOptimizer
+	= CkwsAdaptiveShortcutOptimizer::create ();
+      basicOptimizer->maxNbLoop (NbOptimizationLoops ());
       CkwsPathShPtr copyPath = CkwsPath::createCopy (io_path);
 
+      if (KD_ERROR == basicOptimizer->optimizePath (copyPath))
+	{
+	  hppDout(error, "Basic optimization could not be completed");
+	  return KD_ERROR;
+	}
+ 
       CkwsValidatorDPCollisionShPtr dpValidator;
       CkwsValidatorCfgCollisionShPtr cfgValidator;
       if (KD_ERROR == retrieveValidators (io_path, dpValidator, cfgValidator))
