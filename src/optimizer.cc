@@ -30,6 +30,7 @@
 #include <KineoWorks2/kwsValidatorDPCollision.h>
 #include <KineoWorks2/kwsSMLinear.h>
 #include <KineoWorks2/kwsAdaptiveShortcutOptimizer.h>
+#include <KineoWorks2/kwsRandomOptimizer.h>
 
 //FIXME {update later hpp-util in robotpkg to include sstream}
 #include <sstream>
@@ -78,9 +79,11 @@ namespace kws
 
     ktStatus Optimizer::doOptimizePath (const CkwsPathShPtr& io_path)
     {
-      CkwsAdaptiveShortcutOptimizerShPtr basicOptimizer
-	= CkwsAdaptiveShortcutOptimizer::create ();
+      CkwsLoopOptimizerShPtr basicOptimizer
+	= CkwsRandomOptimizer::create ();
       basicOptimizer->maxNbLoop (NbOptimizationLoops ());
+      basicOptimizer->minGainStop (0.0);
+
       CkwsPathShPtr copyPath = CkwsPath::createCopy (io_path);
 
       if (KD_ERROR == basicOptimizer->optimizePath (copyPath))
@@ -119,7 +122,7 @@ namespace kws
       CkwsConfig ithSecondNextCfg (device ());
 
       CkwsPathOptimizerShPtr hashOptim
-	= kws::hashoptimizer::Optimizer::create (1, 6*stepSize (), 3);
+	= kws::hashoptimizer::Optimizer::create (20, 6*stepSize (), 3);
       hashOptim->distance (distance ());
       CkwsPathShPtr hashPath = CkwsPath::create (device ());
       
