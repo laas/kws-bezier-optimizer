@@ -85,12 +85,13 @@ namespace kws
       basicOptimizer->minGainStop (0.0);
 
       CkwsPathShPtr copyPath = CkwsPath::createCopy (io_path);
-
-      if (KD_ERROR == basicOptimizer->optimizePath (copyPath))
-	{
-	  hppDout(error, "Basic optimization could not be completed");
-	  return KD_ERROR;
-	}
+      
+      if (NbOptimizationLoops () != 0)
+	if (KD_ERROR == basicOptimizer->optimizePath (copyPath))
+	  {
+	    hppDout(error, "Basic optimization could not be completed");
+	    return KD_ERROR;
+	  }
  
       CkwsValidatorDPCollisionShPtr dpValidator;
       CkwsValidatorCfgCollisionShPtr cfgValidator;
